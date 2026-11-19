@@ -188,12 +188,21 @@ function renderHeader(){
   const unread = S.notes.filter(n => !n.read_at).length;
   const bell = h("button",{class:"iconbtn", type:"button", "aria-label":`알림 ${unread}개`, onclick:toggleNotes}, "🔔", unread ? h("span",{class:"dot"}, unread > 99 ? "99+" : unread) : null);
   const p = S.profile || {};
-  const menu = h("div",{class:"usermenu", role:"menu", hidden:true},
-    h("div",{class:"um-who"}, str(p.display_name || (S.user.email||"").split("@")[0], 30), h("span",null, str(S.user.email || "", 60))),
-    h("a",{href:"#/library", role:"menuitem", onclick:()=>{ menu.hidden = true; }},"내 라이브러리"),
-    h("a",{href:"#/u/"+S.user.id, role:"menuitem", onclick:()=>{ menu.hidden = true; }},"내 프로필"),
-    h("button",{type:"button", role:"menuitem", class:"um-out", onclick:async () => { menu.hidden = true; await sb.auth.signOut(); toast("로그아웃했어요"); go("#/"); }},"로그아웃"));
-  const av = h("button",{class:"avatar", type:"button", "aria-label":"내 계정 메뉴", "aria-haspopup":"menu", onclick:e => { e.stopPropagation(); menu.hidden = !menu.hidden; }}, p.avatar_url ? h("img",{src:p.avatar_url, alt:"", referrerpolicy:"no-referrer"}) : (str(p.display_name,1) || "나"));
+  const ic = d => { const v = document.createElementNS("http://www.w3.org/2000/svg","svg"); v.setAttribute("viewBox","0 0 24 24"); v.setAttribute("aria-hidden","true"); v.setAttribute("class","um-ic"); v.innerHTML = d; return v; };
+  const IC = {
+    user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
+    lib:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 3v18"/>',
+    bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+    out:'<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4"/><path d="M6 12h10"/>'
+  };
+  const cur = location.hash || "#/";
+  const item = (href, icon, label) => h("a",{href, role:"menuitem", class: (cur === href || cur.startsWith(href + "/")) ? "on" : null, onclick:()=>{ menu.hidden = true; }}, ic(IC[icon]), h("span",null,label));
+  const menu = h("div",{class:"usermenu", role:"menu", hidden:true, title:S.user.email || ""},
+    item("#/u/"+S.user.id, "user", "내 프로필"),
+    item("#/library", "lib", "내 라이브러리"),
+    h("button",{type:"button", role:"menuitem", onclick:()=>{ menu.hidden = true; toggleNotes(); }}, ic(IC.bell), h("span",null,"알림")),
+    h("button",{type:"button", role:"menuitem", class:"um-out", onclick:async () => { menu.hidden = true; await sb.auth.signOut(); toast("로그아웃했어요"); go("#/"); }}, ic(IC.out), h("span",null,"로그아웃")));
+  const av = h("button",{class:"avatar", type:"button", "aria-label":"내 계정 메뉴", "aria-haspopup":"menu", onclick:e => { e.stopPropagation(); const c = location.hash || "#/"; menu.querySelectorAll("a").forEach(a => { const hr = a.getAttribute("href"); a.classList.toggle("on", c === hr || c.startsWith(hr + "/")); }); menu.hidden = !menu.hidden; }}, p.avatar_url ? h("img",{src:p.avatar_url, alt:"", referrerpolicy:"no-referrer"}) : (str(p.display_name,1) || "나"));
   const wrap = h("div",{class:"um-wrap"}, av, menu);
   if (!window.__umClose){ window.__umClose = true; document.addEventListener("click", e => { const m = document.querySelector(".usermenu"); if (m && !m.hidden && !e.target.closest(".um-wrap")) m.hidden = true; }); document.addEventListener("keydown", e => { if (e.key === "Escape"){ const m = document.querySelector(".usermenu"); if (m) m.hidden = true; } }); }
   r.append(bell, wrap, up);
