@@ -838,7 +838,7 @@ async function renderProject(m, id){
   const add = (k,v) => { if (v) info.append(h("dt",null,k), h("dd",null,v)); };
   add("모든 평가", revLabel(p.id, true));
   add("출시일", date(p.created_at));
-  add("크리에이터", h("a",{href:"#/u/"+p.owner_id, style:"font-weight:700"}, nameOf(p.owner_id)));
+  add("크리에이터", h("a",{href:"#/u/"+p.owner_id, style:"font-weight:600"}, nameOf(p.owner_id)));
   if (p.kind === "portfolio"){ add("학교·과정", str(p.school,60)); add("전공·역할", str(p.major,60)); }
   add("플랫폼", arr(p.platforms).join(" · "));
   if (p.slug && isPublic(p)) add("짧은 주소", h("button",{class:"linkbtn", type:"button", onclick:async () => { try{ await navigator.clipboard.writeText(shortUrl(p)); toast("짧은 주소를 복사했어요"); }catch(e){ toast(shortUrl(p)); } }}, shortUrl(p).replace(/^https?:\/\//,"")));
@@ -924,7 +924,7 @@ function reviewCard(r, p, helpful, redraw){
   if (!mine) foot.append(h("button",{class:"textlink", type:"button", onclick:() => openReport("review", r.id)},"신고"));
   if (isAdmin()) foot.append(h("button",{class:"textlink", type:"button", onclick:async () => { const { error } = await sb.rpc("admin_set_review_hidden", {r_id:r.id, p_hidden:!r.hidden}); if (error) toast(errMsg(error)); else { toast(r.hidden ? "리뷰를 다시 보이게 했어요" : "리뷰를 숨겼어요"); route(); } }}, r.hidden ? "숨김 해제" : "숨기기(관리자)"));
   return h("article",{class:"rv"},
-    h("div",{class:"rv-who"}, h("a",{href:"#/u/"+r.author_id, style:"font-weight:700"}, nameOf(r.author_id)), h("span",{class:"num", style:"color:var(--muted)"}, date(r.created_at)),
+    h("div",{class:"rv-who"}, h("a",{href:"#/u/"+r.author_id, style:"font-weight:600"}, nameOf(r.author_id)), h("span",{class:"num", style:"color:var(--muted)"}, date(r.created_at)),
       r.mission_done ? h("span",{style:"color:var(--pos)"},"✓ 미션 완료") : null, r.hidden ? h("span",{class:"hiddenmark"},"숨김") : null),
     h("div",{class:"rv-main"},
       h("div",{class:"rv-verdict " + (r.recommend ? "up" : "down")}, h("span",{class:"ic","aria-hidden":"true"}, r.recommend ? "👍" : "👎"), r.recommend ? "추천" : "비추천"),
