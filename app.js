@@ -188,8 +188,15 @@ function renderHeader(){
   const unread = S.notes.filter(n => !n.read_at).length;
   const bell = h("button",{class:"iconbtn", type:"button", "aria-label":`알림 ${unread}개`, onclick:toggleNotes}, "🔔", unread ? h("span",{class:"dot"}, unread > 99 ? "99+" : unread) : null);
   const p = S.profile || {};
-  const av = h("a",{class:"avatar", href:"#/library", "aria-label":"내 라이브러리"}, p.avatar_url ? h("img",{src:p.avatar_url, alt:"", referrerpolicy:"no-referrer"}) : (str(p.display_name,1) || "나"));
-  r.append(bell, av, up);
+  const menu = h("div",{class:"usermenu", role:"menu", hidden:true},
+    h("div",{class:"um-who"}, str(p.display_name || (S.user.email||"").split("@")[0], 30), h("span",null, str(S.user.email || "", 60))),
+    h("a",{href:"#/library", role:"menuitem", onclick:()=>{ menu.hidden = true; }},"내 라이브러리"),
+    h("a",{href:"#/u/"+S.user.id, role:"menuitem", onclick:()=>{ menu.hidden = true; }},"내 프로필"),
+    h("button",{type:"button", role:"menuitem", class:"um-out", onclick:async () => { menu.hidden = true; await sb.auth.signOut(); toast("로그아웃했어요"); go("#/"); }},"로그아웃"));
+  const av = h("button",{class:"avatar", type:"button", "aria-label":"내 계정 메뉴", "aria-haspopup":"menu", onclick:e => { e.stopPropagation(); menu.hidden = !menu.hidden; }}, p.avatar_url ? h("img",{src:p.avatar_url, alt:"", referrerpolicy:"no-referrer"}) : (str(p.display_name,1) || "나"));
+  const wrap = h("div",{class:"um-wrap"}, av, menu);
+  if (!window.__umClose){ window.__umClose = true; document.addEventListener("click", e => { const m = document.querySelector(".usermenu"); if (m && !m.hidden && !e.target.closest(".um-wrap")) m.hidden = true; }); document.addEventListener("keydown", e => { if (e.key === "Escape"){ const m = document.querySelector(".usermenu"); if (m) m.hidden = true; } }); }
+  r.append(bell, wrap, up);
 }
 function closeLayer(){ $("#layer").textContent = ""; }
 let AUTH_SET = null;
