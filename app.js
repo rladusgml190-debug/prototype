@@ -786,7 +786,7 @@ async function renderEdit(m, id){
     }catch(e){ btn.disabled = false; btn.textContent = "저장하기"; err.textContent = errMsg(e); }
   });
   m.append(h("div",{class:"steps"}, h("span",null,"1. 링크 넣기 ✓"), h("span",{class:"on"},"2. 더 꾸미기"), h("span",null, p.status === "approved" ? "3. 공개 중 ✓" : "3. 심사 후 공개")),
-    statusBanner(p),
+    statusBanner(p) || "",
     h("h2",{style:"font-size:24px;margin-bottom:6px"}, "「", str(p.title,40), "」 꾸미기"),
     h("p",{class:"note", style:"margin-bottom:16px"},"모두 선택이에요. 태그와 미션을 채우면 더 많은 사람에게 보이고 리뷰도 구체적이 돼요."),
     form);
