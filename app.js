@@ -216,7 +216,7 @@ async function openLogin(reason){
   const socials = [
     on("kakao") ? h("button",{class:"k", type:"button", onclick:()=>sign("kakao")}, h("b",{class:"ic"},"K"), "카카오로 계속하기") : null,
     L.naver === true ? h("button",{class:"n", type:"button", onclick:()=>sign(CFG.NAVER_PROVIDER || "custom:naver")}, h("b",{class:"ic"},"N"), "네이버로 계속하기") : null,
-    on("google") ? h("button",{class:"g", type:"button", onclick:()=>sign("google")}, h("b",{class:"ic"},"G"), "Google로 계속하기") : null
+    on("google") ? h("button",{class:"g", type:"button", onclick:()=>sign("google")}, h("img",{class:"ic-img", src:"google.png", alt:"", width:"20", height:"20"}), "Google로 계속하기") : null
   ].filter(Boolean);
   const emailIn = h("input",{type:"email", id:"login-email", placeholder:"이메일 주소", autocomplete:"email", inputmode:"email"});
   const msg = h("p",{class:"fine", role:"status"});
