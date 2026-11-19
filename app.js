@@ -192,8 +192,20 @@ function renderHeader(){
   r.append(bell, av, up);
 }
 function closeLayer(){ $("#layer").textContent = ""; }
-function openLogin(reason){
+let AUTH_SET = null;
+async function authSettings(){
+  if (AUTH_SET) return AUTH_SET;
+  try{
+    const r = await fetch(CFG.SUPABASE_URL + "/auth/v1/settings", {headers:{apikey:CFG.SUPABASE_KEY}});
+    AUTH_SET = r.ok ? await r.json() : {};
+  }catch(e){ AUTH_SET = {}; }
+  return AUTH_SET;
+}
+async function openLogin(reason){
   const L = CFG.LOGIN || {};
+  const set = await authSettings(), ext = set.external || {};
+  const known = Object.keys(ext).length > 0;
+  const on = p => L[p] !== false && (!known || ext[p] === true);
   const sign = async provider => {
     try{
       try{ sessionStorage.setItem("after_login", location.hash || "#/"); }catch(e){}
@@ -201,18 +213,39 @@ function openLogin(reason){
       if (error) throw error;
     }catch(e){ toast("로그인을 시작하지 못했어요. 잠시 후 다시 시도해 주세요."); }
   };
+  const socials = [
+    on("kakao") ? h("button",{class:"k", type:"button", onclick:()=>sign("kakao")}, h("b",{class:"ic"},"K"), "카카오로 계속하기") : null,
+    L.naver === true ? h("button",{class:"n", type:"button", onclick:()=>sign(CFG.NAVER_PROVIDER || "custom:naver")}, h("b",{class:"ic"},"N"), "네이버로 계속하기") : null,
+    on("google") ? h("button",{class:"g", type:"button", onclick:()=>sign("google")}, h("b",{class:"ic"},"G"), "Google로 계속하기") : null
+  ].filter(Boolean);
+  const emailIn = h("input",{type:"email", id:"login-email", placeholder:"이메일 주소", autocomplete:"email", inputmode:"email"});
+  const msg = h("p",{class:"fine", role:"status"});
+  const sendBtn = h("button",{class:"btn primary", type:"submit"},"로그인 링크 받기");
+  const emailForm = (ext.email !== false) ? h("form",{class:"form", style:"gap:8px", novalidate:true},
+    h("label",{for:"login-email", class:"legend"}, socials.length ? "또는 이메일로" : "이메일로 로그인"),
+    h("div",{style:"display:flex;gap:8px;flex-wrap:wrap"}, emailIn, sendBtn), msg) : null;
+  if (emailForm) emailForm.addEventListener("submit", async ev => {
+    ev.preventDefault(); msg.textContent = "";
+    const email = emailIn.value.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = "이메일 주소를 정확히 적어 주세요."; return; }
+    sendBtn.disabled = true;
+    try{ sessionStorage.setItem("after_login", location.hash || "#/"); }catch(e){}
+    const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin + BASE } });
+    sendBtn.disabled = false;
+    if (error) msg.textContent = /rate|limit|seconds/i.test(error.message) ? "잠시 후 다시 시도해 주세요. 메일은 몇 분에 한 번만 보낼 수 있어요." : "메일을 보내지 못했어요: " + str(error.message, 80);
+    else { msg.textContent = "📮 " + email + " 로 로그인 링크를 보냈어요. 메일의 링크를 누르면 바로 로그인돼요. (스팸함도 확인해 주세요)"; emailIn.value = ""; }
+  });
   const back = h("div",{class:"modal-back", onclick:e => { if (e.target === back) closeLayer(); }},
     h("div",{class:"modal", role:"dialog", "aria-modal":"true", "aria-labelledby":"login-title"},
-      h("h2",{id:"login-title"},"프로토타입 시작하기"),
+      h("h2",{id:"login-title"},"prototype. 시작하기"),
       h("p",{class:"note"}, reason || "로그인하면 작품을 올리고, 리뷰를 쓰고, 알림을 받을 수 있어요."),
-      h("div",{class:"social"},
-        L.kakao !== false ? h("button",{class:"k", type:"button", onclick:()=>sign("kakao")}, h("b",{class:"ic"},"K"), "카카오로 계속하기") : null,
-        L.naver !== false ? h("button",{class:"n", type:"button", onclick:()=>sign(CFG.NAVER_PROVIDER || "custom:naver")}, h("b",{class:"ic"},"N"), "네이버로 계속하기") : null,
-        L.google !== false ? h("button",{class:"g", type:"button", onclick:()=>sign("google")}, h("b",{class:"ic"},"G"), "Google로 계속하기") : null),
+      socials.length ? h("div",{class:"social"}, socials) : null,
+      emailForm,
+      !socials.length && !emailForm ? h("p",{class:"warn"},"지금은 로그인을 준비하고 있어요. 잠시 후 다시 시도해 주세요.") : null,
       h("p",{class:"fine"},"계속하면 ", h("a",{href:"terms.html", target:"_blank"},"이용약관"), "과 ", h("a",{href:"privacy.html", target:"_blank"},"개인정보처리방침"), "에 동의하는 것으로 봐요."),
       h("button",{class:"btn small", type:"button", onclick:closeLayer},"닫기")));
   closeLayer(); $("#layer").append(back);
-  back.querySelector(".social button")?.focus();
+  (back.querySelector(".social button") || emailIn)?.focus();
 }
 function welcome(){
   let seen = false; try{ seen = localStorage.getItem("welcomed_" + S.user.id) === "1"; localStorage.setItem("welcomed_" + S.user.id, "1"); }catch(e){}
@@ -1287,9 +1320,9 @@ window.addEventListener("hashchange", route);
   sb.auth.onAuthStateChange((ev, session) => { setTimeout(() => setUser(session && session.user), 0); });
   try{
     const { data:{ session } } = await sb.auth.getSession();
-    if (/[?&](code|error)=/.test(location.search)){
+    if (/[?&](code|error)=/.test(location.search) || /error_description=/.test(location.hash)){
       let back = "#/"; try{ back = sessionStorage.getItem("after_login") || "#/"; sessionStorage.removeItem("after_login"); }catch(e){}
-      const errDesc = new URLSearchParams(location.search).get("error_description");
+      const errDesc = new URLSearchParams(location.search).get("error_description") || new URLSearchParams(location.hash.replace(/^#/,"")).get("error_description");
       history.replaceState(null, "", BASE + back);
       if (errDesc) toast("로그인하지 못했어요: " + errDesc.slice(0,80));
     }
