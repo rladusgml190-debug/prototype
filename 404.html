@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>prototype.</title>
+<script>
+// 짧은 주소(/prototype/a/abc123)를 앱 주소로 넘겨요
+(function(){var base="/prototype/";var p=location.pathname;var m=p.slice(base.length-1).match(/^\/a\/([a-z0-9]{4,12})\/?$/);
+location.replace(base+(m?"#/a/"+m[1]:""));})();
+</script></head><body><a href="/prototype/">prototype.</a></body></html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>prototype. – 인디 메이커 스토어</title>
+<meta name="description" content="게임·앱·학생 포트폴리오를 자유롭게 올리고, 직접 써 보고, 리뷰로 함께 키우는 인디 메이커 스토어">
+<meta property="og:title" content="프로토타입 – 인디 메이커 스토어">
+<meta property="og:description" content="만든 사람은 피드백을, 써 본 사람은 새로운 작품을">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="theme-color" content="#FFFFFF">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-row">
+    <a class="logo" href="#/">prototype<span>.</span></a>
+    <nav class="mainnav" aria-label="주 메뉴"><a href="#/browse" data-nav="browse">둘러보기</a><a href="#/nominees" data-nav="nominees">노미니</a><a href="#/collections" data-nav="collections">컬렉션</a><a href="#/creators" data-nav="creators">크리에이터</a><a href="#/for-orgs" data-nav="for-orgs">기관용</a><a href="#/guide" data-nav="guide">가이드</a></nav>
+    <form class="search" id="search-form" role="search">
+      <input type="search" id="search" placeholder="게임, 앱, 포트폴리오, 태그 검색" aria-label="작품 검색" autocomplete="off">
+      <button type="submit" aria-label="검색">⌕</button>
+    </form>
+    <div class="hdr-right" id="hdr-right"></div>
+  </div>
+  <div class="catbar-wrap">
+    <nav class="wrap catbar" id="catbar" aria-label="카테고리"></nav>
+  </div>
+</header>
+<main class="wrap">
+  <p class="status" id="status" role="status"></p>
+  <div id="main"></div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <p class="foot-mark" aria-hidden="true">prototype<span>.</span></p>
+    <div class="foot-row">
+      <span>만들고, 써 보고, 함께 키우는 인디 메이커 스토어</span>
+      <nav aria-label="바닥 메뉴"><a href="#/guide">가이드</a><a href="#/pricing">메이커 플랜</a><a href="#/for-orgs">기관용</a><a href="terms.html">이용약관</a><a href="privacy.html"><b>개인정보처리방침</b></a><span id="contact-wrap"><a href="#/" id="contact-link">문의</a></span></nav>
+    </div>
+  </div>
+</footer>
+<div id="layer"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
