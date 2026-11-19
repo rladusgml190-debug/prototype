@@ -218,23 +218,7 @@ async function openLogin(reason){
     L.naver === true ? h("button",{class:"n", type:"button", onclick:()=>sign(CFG.NAVER_PROVIDER || "custom:naver")}, h("b",{class:"ic"},"N"), "네이버로 계속하기") : null,
     on("google") ? h("button",{class:"g", type:"button", onclick:()=>sign("google")}, h("img",{class:"ic-img", src:"google.png", alt:"", width:"20", height:"20"}), "Google로 계속하기") : null
   ].filter(Boolean);
-  const emailIn = h("input",{type:"email", id:"login-email", placeholder:"이메일 주소", autocomplete:"email", inputmode:"email"});
-  const msg = h("p",{class:"fine", role:"status"});
-  const sendBtn = h("button",{class:"btn primary", type:"submit"},"로그인 링크 받기");
-  const emailForm = (ext.email !== false) ? h("form",{class:"form", style:"gap:8px", novalidate:true},
-    h("label",{for:"login-email", class:"legend"}, socials.length ? "또는 이메일로" : "이메일로 로그인"),
-    h("div",{style:"display:flex;gap:8px;flex-wrap:wrap"}, emailIn, sendBtn), msg) : null;
-  if (emailForm) emailForm.addEventListener("submit", async ev => {
-    ev.preventDefault(); msg.textContent = "";
-    const email = emailIn.value.trim();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = "이메일 주소를 정확히 적어 주세요."; return; }
-    sendBtn.disabled = true;
-    try{ sessionStorage.setItem("after_login", location.hash || "#/"); }catch(e){}
-    const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin + BASE } });
-    sendBtn.disabled = false;
-    if (error) msg.textContent = /rate|limit|seconds/i.test(error.message) ? "잠시 후 다시 시도해 주세요. 메일은 몇 분에 한 번만 보낼 수 있어요." : "메일을 보내지 못했어요: " + str(error.message, 80);
-    else { msg.textContent = "📮 " + email + " 로 로그인 링크를 보냈어요. 메일의 링크를 누르면 바로 로그인돼요. (스팸함도 확인해 주세요)"; emailIn.value = ""; }
-  });
+  const emailForm = null; // 이메일 로그인은 쓰지 않아요 (소셜 로그인만)
   const back = h("div",{class:"modal-back", onclick:e => { if (e.target === back) closeLayer(); }},
     h("div",{class:"modal", role:"dialog", "aria-modal":"true", "aria-labelledby":"login-title"},
       h("h2",{id:"login-title"},"prototype. 시작하기"),
