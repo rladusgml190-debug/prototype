@@ -8,7 +8,7 @@ window.APP_CONFIG = {
   // 네이버는 Supabase '커스텀 OAuth' 공급자로 등록해요. 등록할 때 쓴 이름과 같아야 해요.
   NAVER_PROVIDER: "custom:naver",
   // 문의 이메일 (푸터와 약관에 표시돼요)
-  CONTACT_EMAIL: "",
+  CONTACT_EMAIL: "rladusgml190@gmail.com",
   // 사이트가 올라간 경로 (GitHub Pages: /저장소이름/, Netlify처럼 주소 맨 앞이면 /)
   BASE_PATH: "/prototype/"
 };
